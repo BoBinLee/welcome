@@ -29,7 +29,7 @@ const update = (value, spec = {}) => {
         nextValue = _.clone(spec[COMMAND_SET]);
     }
     if (spec.hasOwnProperty(COMMAND_PUSH)) {
-        // nextValue = _.cloneDeep()
+        nextValue = [...nextValue, ...spec[COMMAND_PUSH]];
     }
 
     _.forEach(nextValue, (childValue, key) => {
