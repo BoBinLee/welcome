@@ -25,11 +25,13 @@ var ALL_COMMANDS_MAP = {
 
 const _ = require('lodash');
 
-const selector = createCommandsMap(ALL_COMMANDS_MAP);
+const manager = makeCommandsManager(ALL_COMMANDS_MAP);
 const update = (value, spec = {}) => {
+    if (_.isEmpty(value) && !manager.hasCommandType(spec)) {
+        throw new Error('Can not read property');
+    }
     let nextValue = _.clone(value);
-
-    nextValue = selector(nextValue, spec);
+    nextValue = manager.selector(nextValue, spec);
     _.forEach(nextValue, (childValue, key) => {
         if (!spec.hasOwnProperty(key)) {
             return;
@@ -39,24 +41,29 @@ const update = (value, spec = {}) => {
     return nextValue;
 };
 
+function makeCommandsManager(handlers) {
+    return {
+        hasCommandType: (spec) => {
+            const keys = _.keys(handlers);
+            return _.some(keys, (commandType) => spec.hasOwnProperty(commandType));
+        },
+        selector: (value = {}, spec) => {
+            const keys = _.keys(handlers);
+            let commandTypeCount = 0;
+            let nextValue = value;
 
-function createCommandsMap(handlers) {
-    return function selector(value = {}, spec) {
-        const keys = _.keys(handlers);
-        let commandTypeCount = 0;
-        let nextValue = value;
-
-        for (const commandType of keys) {
-            if (spec.hasOwnProperty(commandType)) {
-                nextValue = handlers[commandType](value, spec[commandType]);
-                commandTypeCount += 1;
+            for (const commandType of keys) {
+                if (spec.hasOwnProperty(commandType)) {
+                    nextValue = handlers[commandType](value, spec[commandType]);
+                    commandTypeCount += 1;
+                }
             }
+            if (commandTypeCount > 1) {
+                throw new Error('Cannot have more than one key in an object with $set​​');
+            }
+            return nextValue;
         }
-        if (commandTypeCount > 1) {
-            throw new Error('Cannot have more than one key in an object with $set​​');
-        }
-        return nextValue;
-    };
+    }
 }
 
 module.exports = update;

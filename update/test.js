@@ -27,6 +27,13 @@ describe("update", () => {
   });
 
   describe("can pass react's test suite", () => {
+    it("should support empty", () => {
+      const state = { a: "b" };
+      const nextState = update(state, {});
+      expect(nextState).toEqual(state);
+      expect(nextState.a).toBe(state.a);
+    });
+
     it("should support set", () => {
       expect(update({ a: "b" }, { $set: { c: "d" } })).toEqual({ c: "d" });
     });
@@ -84,9 +91,25 @@ describe("update", () => {
     });
   });
 
-  // describe("can not pass react's test suite", () => {
-  //   it("Cannot have more than one key in an object with $set​​", () => {
-  //     expect(update({ a: "b" }, { $set: { c: "d" }, $merge: { d: "f" } })).toThrowError(error);
-  //   });
-  // });
+  /*
+    예외 경우
+    - 속성이 중복일 경우
+    - 지시자가 존재하지 않을 경우
+    - 배열의 속성 $set
+    - 속성 안 배열 { a: $push or $unshift }
+    - 배열 merge
+    - Can not read property
+  */
+
+  describe("can not pass react's test suite", () => {
+    it("Cannot have more than one key in an object with $set​​", () => {
+      // console.log(update({ a: "b" }, { $set: { c: "d" }, $merge: { d: "f" } }));
+      // const error = new Error('Cannot have more than one key in an object with $set​​');
+      // expect(() => { throw new Error() }).toThrow();
+      expect(() => update({ a: "b" }, { $set: { c: "d" }, $merge: { d: "f" } })).toThrowError('Cannot have more than one key in an object with $set​​');
+    });
+    it("Can not read property", () => {
+      expect(() => update({}, { a: { $set: 44 } })).toThrowError('Can not read property');
+    });
+  });
 });
