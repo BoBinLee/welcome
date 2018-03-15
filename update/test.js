@@ -27,6 +27,15 @@ describe("update", () => {
   });
 
   describe("can pass react's test suite", () => {
+    it('alice', () => {
+      const state = { name: "Alice", todos: [] };
+      const nextState = update(state, {
+        name: { $set: "Bob" }
+      });
+      expect(nextState.name).toEqual('Bob');
+      expect(nextState.todos).toBe(state.todos);
+    })
+
     it("지시자가 비어있을 경우", () => {
       const state = [{ a: "b" }, { b: 2 }];
       const nextState = update(state, {});
