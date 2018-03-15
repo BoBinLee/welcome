@@ -83,4 +83,10 @@ describe("update", () => {
       expect(update([1, 4, 3], { $splice: [[1, 1, 2]] })).toEqual([1, 2, 3]);
     });
   });
+
+  // describe("can not pass react's test suite", () => {
+  //   it("Cannot have more than one key in an object with $set​​", () => {
+  //     expect(update({ a: "b" }, { $set: { c: "d" }, $merge: { d: "f" } })).toThrowError(error);
+  //   });
+  // });
 });

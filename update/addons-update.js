@@ -14,36 +14,23 @@ var ALL_COMMANDS_LIST = [
     COMMAND_APPLY
 ];
 
-var ALL_COMMANDS_SET = {};
-
-ALL_COMMANDS_LIST.forEach(function (command) {
-    ALL_COMMANDS_SET[command] = true;
-});
+var ALL_COMMANDS_MAP = {
+    [COMMAND_SET]: (value, nextValue) => _.clone(nextValue),
+    [COMMAND_PUSH]: (value, nextValue) => [...value, ...nextValue],
+    [COMMAND_UNSHIFT]: (value, nextValue) => [...nextValue, ...value],
+    [COMMAND_MERGE]: (value, nextValue) => ({ ...value, ...nextValue }),
+    [COMMAND_APPLY]: (value, func) => func(value),
+    [COMMAND_SPLICE]: (value, nextValue) => [..._.slice(value, 0, nextValue[0][0]), ..._.slice(nextValue[0], 2), ..._.slice(value, nextValue[0][1] + 1)],
+};
 
 const _ = require('lodash');
 
+const selector = createCommandsMap(ALL_COMMANDS_MAP);
 const update = (value, spec = {}) => {
     let nextValue = _.clone(value);
 
-    if (spec.hasOwnProperty(COMMAND_SET)) {
-        nextValue = _.clone(spec[COMMAND_SET]);
-    }
-    if (spec.hasOwnProperty(COMMAND_PUSH)) {
-        nextValue = [...nextValue, ...spec[COMMAND_PUSH]];
-    }
-    if (spec.hasOwnProperty(COMMAND_UNSHIFT)) {
-        nextValue = [...spec[COMMAND_UNSHIFT], ...nextValue];
-    }
-    if (spec.hasOwnProperty(COMMAND_MERGE)) {
-        nextValue = { ...nextValue, ...spec[COMMAND_MERGE] };
-    }
-    if (spec.hasOwnProperty(COMMAND_APPLY)) {
-        nextValue = spec[COMMAND_APPLY](nextValue);
-    }
-    if (spec.hasOwnProperty(COMMAND_SPLICE)) {
-        nextValue = [..._.slice(nextValue, 0, spec[COMMAND_SPLICE][0][0]), ..._.slice(spec[COMMAND_SPLICE][0], 2), ..._.slice(nextValue, spec[COMMAND_SPLICE][0][1] + 1)];
-    }
 
+    nextValue = selector(nextValue, spec);
     _.forEach(nextValue, (childValue, key) => {
         if (!spec.hasOwnProperty(key)) {
             return;
@@ -52,5 +39,18 @@ const update = (value, spec = {}) => {
     });
     return nextValue;
 };
+
+
+function createCommandsMap(handlers) {
+    return function selector(value = {}, spec) {
+        const keys = _.keys(handlers);
+        for (const commandType of keys) {
+            if (spec.hasOwnProperty(commandType)) {
+                return handlers[commandType](value, spec[commandType]);
+            }
+        }
+        return value;
+    };
+}
 
 module.exports = update;
