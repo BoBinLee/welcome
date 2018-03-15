@@ -39,7 +39,7 @@ describe("update", () => {
     })
 
     it("지시자가 비어있을 경우", () => {
-      const state = [{ a: "b" }, { b: 2 }];
+      const state: any = [{ a: "b" }, { b: 2 }];
       const nextState = update(state, {});
       expect(nextState).toEqual(state);
       expect(nextState.a).toBe(state.a);
