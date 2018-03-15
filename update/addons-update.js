@@ -37,6 +37,10 @@ const update = (value, spec = {}) => {
     if (spec.hasOwnProperty(COMMAND_MERGE)) {
         nextValue = { ...nextValue, ...spec[COMMAND_MERGE] };
     }
+    if (spec.hasOwnProperty(COMMAND_APPLY)) {
+        nextValue = spec[COMMAND_APPLY](nextValue);
+    }
+
     _.forEach(nextValue, (childValue, key) => {
         if (!spec.hasOwnProperty(key)) {
             return;
