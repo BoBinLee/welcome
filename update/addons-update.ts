@@ -7,15 +7,6 @@ const COMMAND_SET = '$set';
 const COMMAND_MERGE = '$merge';
 const COMMAND_APPLY = '$apply';
 
-const ALL_COMMANDS_LIST = [
-    COMMAND_PUSH,
-    COMMAND_UNSHIFT,
-    COMMAND_SPLICE,
-    COMMAND_SET,
-    COMMAND_MERGE,
-    COMMAND_APPLY
-];
-
 const ALL_COMMANDS_MAP: object = {
     [COMMAND_SET]: (value: object, setValue: object) => _.clone(setValue),
     [COMMAND_PUSH]: (value: Array<any>, array: Array<any>) => {
@@ -35,10 +26,11 @@ const ALL_COMMANDS_MAP: object = {
 
 const manager = makeCommandsManager(ALL_COMMANDS_MAP);
 const update = (value: any, spec: any) => {
-    if (_.isEmpty(value) && !manager.hasCommandType(spec)) {
+    if (isEmptyAndNotCommandType(value, spec)) {
         throw new Error('Can not read property');
     }
     let nextValue = _.clone(value);
+    checkNotContainCommands(nextValue, spec);
     nextValue = manager.selector(nextValue, spec);
     _.forEach(nextValue, (childValue, key) => {
         if (!spec.hasOwnProperty(key)) {
@@ -46,11 +38,14 @@ const update = (value: any, spec: any) => {
         }
         nextValue[key] = update(childValue, spec[key]);
     });
-    checkSpec(nextValue, spec);
     return nextValue;
 };
 
-function checkSpec(value: any, spec: any) {
+function isEmptyAndNotCommandType(value: any, spec: any): boolean {
+    return _.isEmpty(value) && !manager.hasCommandType(spec);
+}
+
+function checkNotContainCommands(value: any, spec: any) {
     if (manager.hasCommandType(spec)) {
         return;
     }

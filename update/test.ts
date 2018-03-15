@@ -48,6 +48,7 @@ describe("update", () => {
     it("should support set", () => {
       expect(update({ a: "b" }, { $set: { c: "d" } })).toEqual({ c: "d" });
       expect(update(44, { $set: 55 })).toEqual(55);
+      expect(update(0, { $set: 4 })).toEqual(4);
       expect(update([3], { $set: [5] })).toEqual([5]);
       expect(update([{ a: 1 }, { b: 2 }], [{ a: { $set: 22 } }])).toEqual([{ a: 22 }, { b: 2 }]);
       expect(update({ a: 3 }, { a: { $set: [1, 3] } })).toEqual({ a: [1, 3] });
