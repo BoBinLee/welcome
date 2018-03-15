@@ -23,19 +23,17 @@ ALL_COMMANDS_LIST.forEach(function (command) {
 const _ = require('lodash');
 
 const update = (value, spec = {}) => {
-    let nextValue = { ...value };
+    let nextValue = _.clone(value);
 
     if (spec.hasOwnProperty(COMMAND_SET)) {
-        nextValue = {
-            ...spec[COMMAND_SET]
-        };
+        nextValue = _.clone(spec[COMMAND_SET]);
+    }
+    if (spec.hasOwnProperty(COMMAND_PUSH)) {
+        // nextValue = _.cloneDeep()
     }
 
     _.forEach(nextValue, (childValue, key) => {
-        // console.log(childValue, key);
         if (!spec.hasOwnProperty(key)) {
-            // console.log(childValue, key);
-            // nextValue[key] = childValue;
             return;
         }
         nextValue[key] = update(childValue, spec[key]);
