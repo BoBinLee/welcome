@@ -31,6 +31,9 @@ const update = (value, spec = {}) => {
     if (spec.hasOwnProperty(COMMAND_PUSH)) {
         nextValue = [...nextValue, ...spec[COMMAND_PUSH]];
     }
+    if (spec.hasOwnProperty(COMMAND_UNSHIFT)) {
+        nextValue = [...spec[COMMAND_UNSHIFT], ...nextValue];
+    }
 
     _.forEach(nextValue, (childValue, key) => {
         if (!spec.hasOwnProperty(key)) {
