@@ -26,7 +26,7 @@ var ALL_COMMANDS_MAP = {
 const _ = require('lodash');
 
 const manager = makeCommandsManager(ALL_COMMANDS_MAP);
-const update = (value, spec = {}) => {
+const update = (value, spec) => {
     if (_.isEmpty(value) && !manager.hasCommandType(spec)) {
         throw new Error('Can not read property');
     }
@@ -38,31 +38,44 @@ const update = (value, spec = {}) => {
         }
         nextValue[key] = update(childValue, spec[key]);
     });
+    checkSpec(nextValue, spec);
     return nextValue;
 };
 
-function makeCommandsManager(handlers) {
-    return {
-        hasCommandType: (spec) => {
-            const keys = _.keys(handlers);
-            return _.some(keys, (commandType) => spec.hasOwnProperty(commandType));
-        },
-        selector: (value = {}, spec) => {
-            const keys = _.keys(handlers);
-            let commandTypeCount = 0;
-            let nextValue = value;
-
-            for (const commandType of keys) {
-                if (spec.hasOwnProperty(commandType)) {
-                    nextValue = handlers[commandType](value, spec[commandType]);
-                    commandTypeCount += 1;
-                }
-            }
-            if (commandTypeCount > 1) {
-                throw new Error('Cannot have more than one key in an object with $set​​');
-            }
-            return nextValue;
+function checkSpec(value, spec) {
+    if (manager.hasCommandType(spec)) {
+        return;
+    }
+    _.forEach(spec, (_, key) => {
+        if (!value.hasOwnProperty(key)) {
+            throw new Error('You provided a key path to update() that did not contain one of $push, $unshift, $splice, $set, $merge, $apply. Did you forget to include {$set: ...}?​');
         }
+    });
+}
+
+function makeCommandsManager(handlers) {
+    const hasCommandType = (spec) => {
+        const keys = _.keys(handlers);
+        return _.some(keys, (commandType) => spec.hasOwnProperty(commandType));
+    };
+
+    const selector = (value = {}, spec) => {
+        const keys = _.keys(handlers);
+        let nextValue = value;
+
+        for (const commandType of keys) {
+            if (spec.hasOwnProperty(commandType)) {
+                nextValue = handlers[commandType](value, spec[commandType]);
+            }
+        }
+        if (hasCommandType(spec) && _.keys(spec).length > 1) {
+            throw new Error('Cannot have more than one key in an object with $set​​');
+        }
+        return nextValue;
+    };
+    return {
+        hasCommandType,
+        selector
     }
 }
 

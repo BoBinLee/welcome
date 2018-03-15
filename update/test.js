@@ -36,6 +36,8 @@ describe("update", () => {
 
     it("should support set", () => {
       expect(update({ a: "b" }, { $set: { c: "d" } })).toEqual({ c: "d" });
+      expect(update(44, { $set: 55 })).toEqual(55);
+      expect(update([3], { $set: [3] })).toEqual([3]);
     });
 
     it("should support push", () => {
@@ -94,22 +96,31 @@ describe("update", () => {
   /*
     예외 경우
     - 속성이 중복일 경우
-    - 지시자가 존재하지 않을 경우
+    - Can not read property
+
+    - 지시자가 존재하지 않을 경우 : You provided a key path to update() that did not contain one of $push, $unshift, $splice, $set, $merge, $apply. Did you forget to include {$set: ...}?​​
     - 배열의 속성 $set
     - 속성 안 배열 { a: $push or $unshift }
     - 배열 merge
-    - Can not read property
+    
   */
 
   describe("can not pass react's test suite", () => {
     it("Cannot have more than one key in an object with $set​​", () => {
-      // console.log(update({ a: "b" }, { $set: { c: "d" }, $merge: { d: "f" } }));
-      // const error = new Error('Cannot have more than one key in an object with $set​​');
-      // expect(() => { throw new Error() }).toThrow();
       expect(() => update({ a: "b" }, { $set: { c: "d" }, $merge: { d: "f" } })).toThrowError('Cannot have more than one key in an object with $set​​');
     });
     it("Can not read property", () => {
       expect(() => update({}, { a: { $set: 44 } })).toThrowError('Can not read property');
+      expect(() => update({ a: {} }, { a: { b: { $set: 44 } } })).toThrowError('Can not read property');
+    });
+    it("지시자가 올바르지 않을 경우", () => {
+      // expect(() => update(5, 4)).toThrowError('Can not read property');
+      // console.log(update({}, { a: { c: 44 } }));
+      // expect(() => update({}, { a: { c: 44 } })).toThrowError('Can not read property');
+      // expect(() => update({}, { a: 3 })).toThrowError('Can not read property');
+      // expect(() => update({ a: 6 }, { a: 3 })).toThrowError('Can not read property');
+      // console.log(update({ b: 6 }, { a: 3 }));
+      expect(() => update({ b: 6 }, { a: 3 })).toThrowError('You provided a key path to update() that did not contain one of $push, $unshift, $splice, $set, $merge, $apply. Did you forget to include {$set: ...}?​');
     });
   });
 });
