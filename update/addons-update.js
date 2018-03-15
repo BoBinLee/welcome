@@ -40,6 +40,9 @@ const update = (value, spec = {}) => {
     if (spec.hasOwnProperty(COMMAND_APPLY)) {
         nextValue = spec[COMMAND_APPLY](nextValue);
     }
+    if (spec.hasOwnProperty(COMMAND_SPLICE)) {
+        nextValue = [..._.slice(nextValue, 0, spec[COMMAND_SPLICE][0][0]), ..._.slice(spec[COMMAND_SPLICE][0], 2), ..._.slice(nextValue, spec[COMMAND_SPLICE][0][1] + 1)];
+    }
 
     _.forEach(nextValue, (childValue, key) => {
         if (!spec.hasOwnProperty(key)) {
