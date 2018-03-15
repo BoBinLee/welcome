@@ -15,12 +15,12 @@ var ALL_COMMANDS_LIST = [
 ];
 
 var ALL_COMMANDS_MAP = {
-    [COMMAND_SET]: (value, nextValue) => _.clone(nextValue),
-    [COMMAND_PUSH]: (value, nextValue) => [...value, ...nextValue],
-    [COMMAND_UNSHIFT]: (value, nextValue) => [...nextValue, ...value],
-    [COMMAND_MERGE]: (value, nextValue) => ({ ...value, ...nextValue }),
+    [COMMAND_SET]: (value, setValue) => _.clone(setValue),
+    [COMMAND_PUSH]: (value, array) => [...value, ...array],
+    [COMMAND_UNSHIFT]: (value, array) => [...array, ...value],
+    [COMMAND_MERGE]: (value, mergeValue) => ({ ...value, ...mergeValue }),
     [COMMAND_APPLY]: (value, func) => func(value),
-    [COMMAND_SPLICE]: (value, nextValue) => [..._.slice(value, 0, nextValue[0][0]), ..._.slice(nextValue[0], 2), ..._.slice(value, nextValue[0][1] + 1)],
+    [COMMAND_SPLICE]: (value, sliceProps) => [..._.slice(value, 0, sliceProps[0][0]), ..._.slice(sliceProps[0], 2), ..._.slice(value, sliceProps[0][1] + 1)],
 };
 
 const _ = require('lodash');
@@ -28,7 +28,6 @@ const _ = require('lodash');
 const selector = createCommandsMap(ALL_COMMANDS_MAP);
 const update = (value, spec = {}) => {
     let nextValue = _.clone(value);
-
 
     nextValue = selector(nextValue, spec);
     _.forEach(nextValue, (childValue, key) => {
@@ -44,12 +43,19 @@ const update = (value, spec = {}) => {
 function createCommandsMap(handlers) {
     return function selector(value = {}, spec) {
         const keys = _.keys(handlers);
+        let commandTypeCount = 0;
+        let nextValue = value;
+
         for (const commandType of keys) {
             if (spec.hasOwnProperty(commandType)) {
-                return handlers[commandType](value, spec[commandType]);
+                nextValue = handlers[commandType](value, spec[commandType]);
+                commandTypeCount += 1;
             }
         }
-        return value;
+        if (commandTypeCount > 1) {
+            throw new Error('Cannot have more than one key in an object with $set​​');
+        }
+        return nextValue;
     };
 }
 
