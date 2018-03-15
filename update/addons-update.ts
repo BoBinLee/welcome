@@ -31,7 +31,7 @@ const update = (value: any, spec: any) => {
     }
     let nextValue = _.clone(value);
     checkNotContainCommands(nextValue, spec);
-    nextValue = manager.selector(nextValue, spec);
+    nextValue = manager.getValue(nextValue, spec);
     _.forEach(nextValue, (childValue, key) => {
         if (!spec.hasOwnProperty(key)) {
             return;
@@ -62,7 +62,7 @@ function makeCommandsManager(handlers: any) {
         return _.some(keys, (commandType) => spec.hasOwnProperty(commandType));
     };
 
-    const selector = (value: any = {}, spec: any) => {
+    const getValue = (value: any = {}, spec: any) => {
         const keys = _.keys(handlers);
         let nextValue = value;
 
@@ -78,7 +78,7 @@ function makeCommandsManager(handlers: any) {
     };
     return {
         hasCommandType,
-        selector
+        getValue
     }
 }
 
