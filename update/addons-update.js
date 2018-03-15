@@ -16,7 +16,15 @@ var ALL_COMMANDS_LIST = [
 
 var ALL_COMMANDS_MAP = {
     [COMMAND_SET]: (value, setValue) => _.clone(setValue),
-    [COMMAND_PUSH]: (value, array) => [...value, ...array],
+    [COMMAND_PUSH]: (value, array) => {
+        if (!_.isArray(value)) {
+            throw new Error('expected target of $push to be an array; got 1.​​');
+        }
+        if (!_.isArray(array)) {
+            throw new Error('expected target of $push to be an array; got undefined.​​');
+        }
+        return [...value, ...array];
+    },
     [COMMAND_UNSHIFT]: (value, array) => [...array, ...value],
     [COMMAND_MERGE]: (value, mergeValue) => ({ ...value, ...mergeValue }),
     [COMMAND_APPLY]: (value, func) => func(value),
