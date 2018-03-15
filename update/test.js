@@ -1,4 +1,4 @@
-const update = require("./your-file"); // <- this is the file you make;
+const update = require("./addons-update");
 
 describe("update", () => {
   describe("has a #$set method that", () => {
