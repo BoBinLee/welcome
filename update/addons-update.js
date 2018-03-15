@@ -25,7 +25,7 @@ var ALL_COMMANDS_MAP = {
         }
         return [...value, ...array];
     },
-    [COMMAND_UNSHIFT]: (value, array) => [...array, ...value],
+    [COMMAND_UNSHIFT]: (value, array) => [..._.reverse(array), ...value],
     [COMMAND_MERGE]: (value, mergeValue) => ({ ...value, ...mergeValue }),
     [COMMAND_APPLY]: (value, func) => func(value),
     [COMMAND_SPLICE]: (value, sliceProps) => [..._.slice(value, 0, sliceProps[0][0]), ..._.slice(sliceProps[0], 2), ..._.slice(value, sliceProps[0][1] + 1)],

@@ -55,8 +55,16 @@ describe("update", () => {
       expect(update([1], { $push: [7] })).toEqual([1, 7]);
     });
 
+    it("should support push(array object)", () => {
+      expect(update({ a: [1] }, { a: { $push: [7] } })).toEqual({ a: [1, 7] });
+    });
+
     it("should support unshift", () => {
       expect(update([1], { $unshift: [7] })).toEqual([7, 1]);
+    });
+
+    it("should support unshift(over 2 length of array)", () => {
+      expect(update([1], { $unshift: [7, 8] })).toEqual([8, 7, 1]);
     });
 
     it("should support merge", () => {
@@ -101,6 +109,12 @@ describe("update", () => {
 
     it("should support splice", () => {
       expect(update([1, 4, 3], { $splice: [[1, 1, 2]] })).toEqual([1, 2, 3]);
+    });
+
+    it("should support splice Nested collections", () => {
+      const state = [1, 2, { a: [12, 17, 15] }];
+      const commands = { 2: { a: { $splice: [[1, 1, 13, 14]] } } };
+      expect(update(state, commands)).toEqual([1, 2, { a: [12, 13, 14, 15] }]);
     });
 
     it("should support complicated updates", () => {
