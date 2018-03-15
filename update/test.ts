@@ -1,10 +1,12 @@
-const update = require("./addons-update");
+import update from './addons-update';
+
+// const update = require("./addons-update");
 
 describe("update", () => {
   describe("has a #$set method that", () => {
-    var state;
+    var state: any;
     var commands;
-    var nextState;
+    var nextState: any;
     beforeEach(() => {
       state = {
         a: {
@@ -77,7 +79,7 @@ describe("update", () => {
     it("should support apply", () => {
       expect(
         update(2, {
-          $apply: function (x) {
+          $apply: function (x: number) {
             return x * 2;
           }
         })
@@ -88,7 +90,7 @@ describe("update", () => {
       expect(
         update({ y: 2 }, {
           y: {
-            $apply: function (x) {
+            $apply: function (x: number) {
               return x * 2;
             }
           }
@@ -132,12 +134,6 @@ describe("update", () => {
       expect(() => update({ a: {} }, { a: { b: { $set: 44 } } })).toThrowError('Can not read property');
     });
     it("지시자가 올바르지 않을 경우", () => {
-      // expect(() => update(5, 4)).toThrowError('Can not read property');
-      // console.log(update({}, { a: { c: 44 } }));
-      // expect(() => update({}, { a: { c: 44 } })).toThrowError('Can not read property');
-      // expect(() => update({}, { a: 3 })).toThrowError('Can not read property');
-      // expect(() => update({ a: 6 }, { a: 3 })).toThrowError('Can not read property');
-      // console.log(update({ b: 6 }, { a: 3 }));
       expect(() => update({ b: 6 }, { a: 3 })).toThrowError('You provided a key path to update() that did not contain one of $push, $unshift, $splice, $set, $merge, $apply. Did you forget to include {$set: ...}?​');
     });
 
@@ -152,6 +148,5 @@ describe("update", () => {
     it('expected target of $push to be an array; got 1.​​', () => {
       expect(() => update({ a: 1 }, { a: { $push: [1] } })).toThrowError('expected target of $push to be an array; got 1.​​');
     });
-
   });
 });

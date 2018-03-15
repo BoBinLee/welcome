@@ -1,11 +1,13 @@
-var COMMAND_PUSH = '$push';
-var COMMAND_UNSHIFT = '$unshift';
-var COMMAND_SPLICE = '$splice';
-var COMMAND_SET = '$set';
-var COMMAND_MERGE = '$merge';
-var COMMAND_APPLY = '$apply';
+import * as _ from 'lodash';
 
-var ALL_COMMANDS_LIST = [
+const COMMAND_PUSH = '$push';
+const COMMAND_UNSHIFT = '$unshift';
+const COMMAND_SPLICE = '$splice';
+const COMMAND_SET = '$set';
+const COMMAND_MERGE = '$merge';
+const COMMAND_APPLY = '$apply';
+
+const ALL_COMMANDS_LIST = [
     COMMAND_PUSH,
     COMMAND_UNSHIFT,
     COMMAND_SPLICE,
@@ -14,9 +16,9 @@ var ALL_COMMANDS_LIST = [
     COMMAND_APPLY
 ];
 
-var ALL_COMMANDS_MAP = {
-    [COMMAND_SET]: (value, setValue) => _.clone(setValue),
-    [COMMAND_PUSH]: (value, array) => {
+const ALL_COMMANDS_MAP: object = {
+    [COMMAND_SET]: (value: object, setValue: object) => _.clone(setValue),
+    [COMMAND_PUSH]: (value: Array<any>, array: Array<any>) => {
         if (!_.isArray(value)) {
             throw new Error('expected target of $push to be an array; got 1.​​');
         }
@@ -25,16 +27,14 @@ var ALL_COMMANDS_MAP = {
         }
         return [...value, ...array];
     },
-    [COMMAND_UNSHIFT]: (value, array) => [..._.reverse(array), ...value],
-    [COMMAND_MERGE]: (value, mergeValue) => ({ ...value, ...mergeValue }),
-    [COMMAND_APPLY]: (value, func) => func(value),
-    [COMMAND_SPLICE]: (value, sliceProps) => [..._.slice(value, 0, sliceProps[0][0]), ..._.slice(sliceProps[0], 2), ..._.slice(value, sliceProps[0][1] + 1)],
+    [COMMAND_UNSHIFT]: (value: Array<any>, array: Array<any>) => [..._.reverse(array), ...value],
+    [COMMAND_MERGE]: (value: object, mergeValue: object) => ({ ...value, ...mergeValue }),
+    [COMMAND_APPLY]: (value: object, func: Function) => func(value),
+    [COMMAND_SPLICE]: (value: Array<any>, sliceProps: Array<any>) => [..._.slice(value, 0, sliceProps[0][0]), ..._.slice(sliceProps[0], 2), ..._.slice(value, sliceProps[0][1] + 1)],
 };
 
-const _ = require('lodash');
-
 const manager = makeCommandsManager(ALL_COMMANDS_MAP);
-const update = (value, spec) => {
+const update = (value: any, spec: any) => {
     if (_.isEmpty(value) && !manager.hasCommandType(spec)) {
         throw new Error('Can not read property');
     }
@@ -50,7 +50,7 @@ const update = (value, spec) => {
     return nextValue;
 };
 
-function checkSpec(value, spec) {
+function checkSpec(value: any, spec: any) {
     if (manager.hasCommandType(spec)) {
         return;
     }
@@ -61,13 +61,13 @@ function checkSpec(value, spec) {
     });
 }
 
-function makeCommandsManager(handlers) {
-    const hasCommandType = (spec) => {
+function makeCommandsManager(handlers: any) {
+    const hasCommandType = (spec: any) => {
         const keys = _.keys(handlers);
         return _.some(keys, (commandType) => spec.hasOwnProperty(commandType));
     };
 
-    const selector = (value = {}, spec) => {
+    const selector = (value: any = {}, spec: any) => {
         const keys = _.keys(handlers);
         let nextValue = value;
 
@@ -87,4 +87,4 @@ function makeCommandsManager(handlers) {
     }
 }
 
-module.exports = update;
+export default update;
