@@ -34,7 +34,9 @@ const update = (value, spec = {}) => {
     if (spec.hasOwnProperty(COMMAND_UNSHIFT)) {
         nextValue = [...spec[COMMAND_UNSHIFT], ...nextValue];
     }
-
+    if (spec.hasOwnProperty(COMMAND_MERGE)) {
+        nextValue = { ...nextValue, ...spec[COMMAND_MERGE] };
+    }
     _.forEach(nextValue, (childValue, key) => {
         if (!spec.hasOwnProperty(key)) {
             return;
