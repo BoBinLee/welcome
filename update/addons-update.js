@@ -20,6 +20,8 @@ ALL_COMMANDS_LIST.forEach(function (command) {
     ALL_COMMANDS_SET[command] = true;
 });
 
+const _ = require('lodash');
+
 const update = (value, spec = {}) => {
     let nextValue = { ...value };
 
@@ -28,6 +30,16 @@ const update = (value, spec = {}) => {
             ...spec[COMMAND_SET]
         };
     }
+
+    _.forEach(nextValue, (childValue, key) => {
+        // console.log(childValue, key);
+        if (!spec.hasOwnProperty(key)) {
+            // console.log(childValue, key);
+            // nextValue[key] = childValue;
+            return;
+        }
+        nextValue[key] = update(childValue, spec[key]);
+    });
     return nextValue;
 };
 
