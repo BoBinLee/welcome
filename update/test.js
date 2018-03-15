@@ -37,8 +37,9 @@ describe("update", () => {
     it("should support set", () => {
       expect(update({ a: "b" }, { $set: { c: "d" } })).toEqual({ c: "d" });
       expect(update(44, { $set: 55 })).toEqual(55);
-      expect(update([3], { $set: [3] })).toEqual([3]);
+      expect(update([3], { $set: [5] })).toEqual([5]);
       expect(update([{ a: 1 }, { b: 2 }], [{ a: { $set: 22 } }])).toEqual([{ a: 22 }, { b: 2 }]);
+      expect(update({ a: 3 }, { a: { $set: [1, 3] } })).toEqual({ a: [1, 3] });
     });
 
     it("should support push", () => {
@@ -98,18 +99,6 @@ describe("update", () => {
       // console.log(update([{ a: 1 }, { b: 2 }], [{ a: { $set: 22 } }, { $merge: { c: "d" } }]));
     });
   });
-
-  /*
-    예외 경우
-    - 속성이 중복일 경우
-    - Can not read property
-    - 지시자가 존재하지 않을 경우 : You provided a key path to update() that did not contain one of $push, $unshift, $splice, $set, $merge, $apply. Did you forget to include {$set: ...}?​​
-    - 배열의 속성 $set
-    - 속성 안 배열 { a: $push or $unshift }
-    
-    - 배열 merge
-    
-  */
 
   describe("can not pass react's test suite", () => {
     it("Cannot have more than one key in an object with $set​​", () => {
